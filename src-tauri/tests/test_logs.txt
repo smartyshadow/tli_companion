@@ -1,0 +1,15 @@
+[2026.01.12-11.34.07:799][980]GameLog: Display: [Game] ItemChange@ ProtoName=PickItems start
+[2026.01.12-11.34.07:800][980]GameLog: Display: [Game] BagMgr@:Modfy BagItem PageId = 102 SlotId = 1 ConfigBaseId = 100200 Num = 50
+[2026.01.12-11.34.07:801][980]GameLog: Display: [Game] BagMgr@:Modfy BagItem PageId = 102 SlotId = 2 ConfigBaseId = 100300 Num = 100
+[2026.01.12-11.34.07:802][980]GameLog: Display: [Game] ItemChange@ ProtoName=PickItems end
+[2026.01.12-11.34.10:500][983]GameLog: Display: [Game] ItemChange@ ProtoName=PickItems start
+[2026.01.12-11.34.10:501][983]GameLog: Display: [Game] BagMgr@:Modfy BagItem PageId = 102 SlotId = 1 ConfigBaseId = 100200 Num = 75
+[2026.01.12-11.34.10:502][983]GameLog: Display: [Game] ItemChange@ ProtoName=PickItems end
+[2026.01.12-11.35.00:000][990]GameLog: Display: [Game] ----Socket SendMessage STT----XchgSearchPrice----SynId = 4006
+[2026.01.12-11.35.00:001][990]GameLog: Display: [Game] +refer [101010037_15]
+[2026.01.12-11.35.00:500][990]GameLog: Display: [Game] ----Socket RecvMessage STT----XchgSearchPrice----SynId = 4006
+[2026.01.12-11.35.00:501][990]GameLog: Display: [Game] +prices+1+currency [100300]
+[2026.01.12-11.35.00:502][990]GameLog: Display: [Game] |      | +unitPrices+1 [1.0]
+[2026.01.12-11.35.00:503][990]GameLog: Display: [Game] |      | +unitPrices+2 [1.5]
+[2026.01.12-11.35.00:504][990]GameLog: Display: [Game] |      | +unitPrices+3 [2.0]
+[2026.01.12-11.35.00:505][990]GameLog: Display: [Game] ----Socket RecvMessage End----
