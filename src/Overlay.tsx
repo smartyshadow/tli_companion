@@ -526,12 +526,14 @@ export function Overlay() {
   // Отображаемое время - просто localDuration
   const displayDuration = localDuration;
   
-  // Tooltip handlers
+  // Tooltip handlers - отключаем в collapsed режиме
   const showTooltip = (text: string) => (e: React.MouseEvent) => {
+    if (viewMode === 'collapsed') return;
     setTooltip({ text, x: e.clientX, y: e.clientY });
   };
   const hideTooltip = () => setTooltip(null);
   const moveTooltip = (e: React.MouseEvent) => {
+    if (viewMode === 'collapsed') return;
     if (tooltip) setTooltip({ ...tooltip, x: e.clientX, y: e.clientY });
   };
   
@@ -553,7 +555,11 @@ export function Overlay() {
 
   // Calculate manual drops income
   const manualDropsIncome = manualDrops.reduce((sum, d) => sum + d.quantity * d.price, 0);
-  const manualDropsFee = manualDropsIncome * appSettings.auction_fee_rate;
+  // Комиссия только на ручные дропы, которые НЕ являются FE (Flame Elementium)
+  const manualDropsTaxable = manualDrops
+    .filter(d => d.game_id !== BASE_CURRENCY_ID)
+    .reduce((sum, d) => sum + d.quantity * d.price, 0);
+  const manualDropsFee = manualDropsTaxable * appSettings.auction_fee_rate;
   
   // Total income = auto drops + manual drops
   const totalIncome = (stats?.total_value || 0) + manualDropsIncome;
@@ -581,6 +587,36 @@ export function Overlay() {
     document.addEventListener('contextmenu', handleContextMenu);
     return () => document.removeEventListener('contextmenu', handleContextMenu);
   }, []);
+
+  // Динамически изменяем размер окна под контент, чтобы избежать "мёртвых" зон
+  useEffect(() => {
+    const updateWindowSize = async () => {
+      try {
+        const win = getCurrentWindow();
+        const { LogicalSize } = await import('@tauri-apps/api/window');
+        const isHorizontal = appSettings.layout_orientation === 'horizontal';
+        
+        if (viewMode === 'collapsed') {
+          // В свёрнутом режиме - только sidebar
+          if (isHorizontal) {
+            await win.setSize(new LogicalSize(500, 70));
+          } else {
+            await win.setSize(new LogicalSize(75, 500));
+          }
+        } else {
+          // В развёрнутом режиме - полный размер
+          if (isHorizontal) {
+            await win.setSize(new LogicalSize(600, 420));
+          } else {
+            await win.setSize(new LogicalSize(420, 600));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to update window size:", err);
+      }
+    };
+    updateWindowSize();
+  }, [viewMode, appSettings.layout_orientation]);
 
   useEffect(() => {
     async function init() {
@@ -1228,11 +1264,14 @@ export function Overlay() {
   const handleMinimize = async () => {
     try {
       const win = getCurrentWindow();
-      await win.minimize();
+      // Всегда используем hide() для прозрачных окон,
+      // чтобы избежать проблемы с "призрачным" хитбоксом
+      await win.hide();
     } catch (err) {
       console.error("Minimize error:", err);
     }
   };
+
 
   const handleSaveSettings = async (newSettings: AppSettings) => {
     try {
