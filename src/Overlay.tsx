@@ -578,9 +578,10 @@ export function Overlay() {
     .reduce((sum, d) => sum + d.quantity * d.price, 0);
   const manualDropsFee = manualDropsTaxable * appSettings.auction_fee_rate;
   
-  // Total income = auto drops + manual drops
-  const totalIncome = (stats?.total_value || 0) + manualDropsIncome;
-  const totalFee = calculateFee(stats?.total_value || 0, drops) + manualDropsFee;
+  // Total income = auto drops (из локального состояния) + manual drops
+  const autoDropsIncome = drops.reduce((sum, d) => sum + d.total_value, 0);
+  const totalIncome = autoDropsIncome + manualDropsIncome;
+  const totalFee = calculateFee(autoDropsIncome, drops) + manualDropsFee;
   
   const netProfit = totalIncome - totalExpenses - totalFee;
   // Use displayDuration for profit calculation to account for pauses
@@ -789,17 +790,48 @@ export function Overlay() {
   useEffect(() => {
     const unlisteners: (() => void)[] = [];
 
-    listen<AggregatedDrop>("item-drop", () => {
-      invoke<AggregatedDrop[]>("get_drops").then(setDrops).catch(console.error);
+    listen<AggregatedDrop>("item-drop", async () => {
+      // Обновляем drops только если сессия активна
+      const active = await invoke<boolean>("is_session_active");
+      if (active) {
+        invoke<AggregatedDrop[]>("get_drops").then(setDrops).catch(console.error);
+      }
     }).then(unlisten => unlisteners.push(unlisten));
 
-    listen("price-update", () => {
-      invoke<AggregatedDrop[]>("get_drops").then(setDrops).catch(console.error);
-      invoke<Record<number, number>>("get_cached_prices").then(setPricesCache).catch(console.error);
+    listen("price-update", async () => {
+      // Всегда обновляем кэш цен (для прайсчека после сессии)
+      const newPrices = await invoke<Record<number, number>>("get_cached_prices");
+      setPricesCache(newPrices);
+      
+      // Обновляем drops только если сессия активна
+      const active = await invoke<boolean>("is_session_active");
+      if (active) {
+        invoke<AggregatedDrop[]>("get_drops").then(setDrops).catch(console.error);
+      } else {
+        // Если сессия завершена — пересчитываем стоимость локально
+        setDrops(prevDrops => prevDrops.map(drop => {
+          const newPrice = newPrices[drop.game_id];
+          if (newPrice !== undefined && newPrice !== drop.unit_price) {
+            // Цена ИЗМЕНИЛАСЬ — обновляем и сбрасываем флаг устаревшей цены
+            return {
+              ...drop,
+              unit_price: newPrice,
+              total_value: drop.quantity * newPrice,
+              price_is_stale: false,
+              price_updated_at: new Date().toISOString(),
+            };
+          }
+          return drop;
+        }));
+      }
     }).then(unlisten => unlisteners.push(unlisten));
 
-    listen<SessionStats>("stats-update", (event) => {
-      setStats(event.payload);
+    listen<SessionStats>("stats-update", async (event) => {
+      // Обновляем stats только если сессия активна
+      const active = await invoke<boolean>("is_session_active");
+      if (active) {
+        setStats(event.payload);
+      }
     }).then(unlisten => unlisteners.push(unlisten));
 
     return () => unlisteners.forEach(fn => fn());
