@@ -2,6 +2,18 @@
 
 Desktop-приложение для автоматического трекинга фарма в **Torchlight Infinite**.
 
+<p align="center">
+  <a href="https://youtu.be/KrTaA0yFJ0E">
+    <img src="https://img.youtube.com/vi/KrTaA0yFJ0E/maxresdefault.jpg" alt="TLI Companion Overview" width="600">
+  </a>
+</p>
+
+<p align="center">
+  <strong>▶️ Смотреть обзор на YouTube</strong>
+</p>
+
+---
+
 ## Возможности
 
 - 🎯 **Автоматический подсчёт дропа** из логов игры
