@@ -4,6 +4,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import "./App.css";
 import { getItemName, isKnownItem } from "./itemsData";
 
@@ -582,7 +583,11 @@ function App() {
                 className={`drop-item ${!isItemKnown(drop) ? 'unknown' : ''}`}
               >
                 <div className="drop-info">
-                  <span className={`drop-name ${!isItemKnown(drop) ? 'unknown' : ''}`}>
+                  <span
+                    className={`drop-name clickable ${!isItemKnown(drop) ? 'unknown' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); writeText(getItemDisplayName(drop).substring(0, 16)); }}
+                    title="Клик - скопировать название (макс 16 символов)"
+                  >
                     {getItemDisplayName(drop)}
                   </span>
                   <span className="drop-qty">x{drop.quantity}</span>

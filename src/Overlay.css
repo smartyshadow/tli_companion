@@ -559,6 +559,19 @@ button, input, select, textarea, a {
   text-overflow: ellipsis;
 }
 
+.drop-name.clickable {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.drop-name.clickable:hover {
+  color: #7fff00;
+}
+
+.drop-name.clickable:active {
+  opacity: 0.7;
+}
+
 .drop-qty {
   font-size: 11px;
   color: var(--text-muted);

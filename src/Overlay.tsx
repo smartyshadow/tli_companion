@@ -1850,7 +1850,11 @@ export function Overlay() {
                   <div key={drop.id} className="drop-item manual">
                     <div className="drop-info">
                       <span className="drop-manual-badge" title="Добавлено вручную">✎</span>
-                      <span className="drop-name">{lang === 'ru' ? (drop.name_ru || drop.name) : (drop.name || drop.name_ru)}</span>
+                      <span
+                        className="drop-name clickable"
+                        onClick={(e) => { e.stopPropagation(); writeText(((lang === 'ru' ? (drop.name_ru || drop.name) : (drop.name || drop.name_ru)) || '').substring(0, 16)); }}
+                        title="Клик - скопировать название (макс 16 символов)"
+                      >{lang === 'ru' ? (drop.name_ru || drop.name) : (drop.name || drop.name_ru)}</span>
                       <span className="drop-qty">x{drop.quantity}</span>
                     </div>
                     <div className="drop-value-wrapper">
@@ -1872,7 +1876,11 @@ export function Overlay() {
                 {drops.map((drop) => (
                   <div key={drop.game_id} className="drop-item">
                     <div className="drop-info">
-                      <span className="drop-name">{getItemName(drop)}</span>
+                      <span
+                        className="drop-name clickable"
+                        onClick={(e) => { e.stopPropagation(); writeText(getItemName(drop).substring(0, 16)); }}
+                        title="Клик - скопировать название (макс 16 символов)"
+                      >{getItemName(drop)}</span>
                       <span className="drop-qty">x{drop.quantity}</span>
                     </div>
                     <div className="drop-value-wrapper">
